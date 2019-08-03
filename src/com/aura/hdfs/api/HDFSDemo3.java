@@ -1,17 +1,22 @@
 package com.aura.hdfs.api;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
+
+import javax.swing.text.StyledEditorKit.BoldAction;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
+import org.apache.hadoop.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +61,57 @@ public class HDFSDemo3 {
 			
 			System.out.println("===========================================");
 		}
+	}
+	
+	//使用流式数据访问
+	@Test
+	public void get() throws Exception {
+		//构建输入流，读取hdfs文件系统的a.txt
+		FSDataInputStream in = fs.open(new Path("/a.txt"));
+		//构建输出流，写到本地系统
+		FileOutputStream out = new FileOutputStream(new File("e:\\hadoop\\a.txt"));
+		//工具
+//		IOUtils.copyBytes(in, out, 4096);
+		//下载部分数据
+		//指定offset
+		in.seek(1);
+		//指定length
+		IOUtils.copyBytes(in, out, 3l, true);
+		System.out.println("下载完成");
+	}
+	
+	//下载hadoop-2.7.7-centos-6.7.tar.gz文件的第二块
+	@Test
+	public void readNumber2Block() throws Exception {
+		Path path = new Path("/hadoop-2.7.7-centos-6.7.tar.gz");
+		//1、获取文件的信息
+		FileStatus fileStatus = fs.getFileStatus(path);
+		//2、块信息
+		BlockLocation[] blockLocations = fs.getFileBlockLocations(fileStatus, 0, fileStatus.getLen());
+		//3、判断是否存在第二块
+		if(blockLocations.length < 2) {
+			throw new RuntimeException("该文件没有第二块信息");
+		}
+		//4、获取第二块的offset
+		//4.1、获取文件的blockSize
+		fileStatus.getBlockSize();
+		//4.2、获取第一块的长度
+		blockLocations[0].getLength();
+		//4.3、获取第二块的offset
+		long offset = blockLocations[1].getOffset();
+		//5、获取第二块的场地
+		long length = blockLocations[1].getLength();
+		//6、构建输入输出流，指定offset和length
+		FSDataInputStream in = fs.open(path);
+		FileOutputStream out = new FileOutputStream(new File("E:\\a.txt"));
+		
+		//7、指定offset
+		in.seek(offset);
+		
+		//8、指定length
+		IOUtils.copyBytes(in, out, length, true);
+		
+		System.out.println("下载成功");
 	}
 	
 	@After
