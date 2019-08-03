@@ -2,11 +2,8 @@ package com.aura.hdfs.api;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
-
-import javax.swing.text.StyledEditorKit.BoldAction;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
