@@ -2,6 +2,7 @@ package com.aura.hdfs.api;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 
@@ -32,6 +33,14 @@ public class HDFSDemo3 {
 		URI uri = new URI("hdfs://hdp01:9000");
 		Configuration conf = new Configuration();
 		fs = FileSystem.get(uri, conf, "hdp");
+	}
+	
+	@Test
+	public void up() throws Exception {
+		Path src = new Path("C:\\hadoop-software\\hadoop-2.7.7-centos-6.7.tar.gz");
+		Path dst = new Path("/");
+		fs.copyFromLocalFile(src, dst);
+		System.out.println("上传完成");
 	}
 	
 	@Test
